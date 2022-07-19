@@ -1,0 +1,29 @@
+{
+  "name": "billing-logs-conversion-script",
+  "version": "1.0.0",
+  "description": "A Node.js script that converts MINHA CDN logs to Agora logs format",
+  "main": "./bin/index.js",
+  "bin": {
+    "convert": "./bin/index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AllanLancioni/billing-logs-conversion-script.git"
+  },
+  "author": "Allan Lancioni",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AllanLancioni/billing-logs-conversion-script/issues"
+  },
+  "homepage": "https://github.com/AllanLancioni/billing-logs-0conversion-script#readme",
+  "dependencies": {
+    "chalk": "^5.0.1",
+    "ora": "^6.1.2",
+    "valid-url": "^1.0.9",
+    "yargs": "^17.5.1"
+  }
+}
