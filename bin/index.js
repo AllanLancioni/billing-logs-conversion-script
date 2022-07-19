@@ -11,5 +11,4 @@ const outputPath = argv.o || argv.outputPath || argv._[1]
 
 const app = new App(inputUrl, outputPath).run()
 
-
 // console.log("Convert!")
