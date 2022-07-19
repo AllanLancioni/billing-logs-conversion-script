@@ -1,8 +1,8 @@
 import { isUri } from 'valid-url'
-import { throwErr, InvalidArgsError } from './errors/index.js'
+import { throwErr, InvalidArgsError, FetchError } from './errors/index.js'
 import chalk from 'chalk'
-
 import ora from 'ora'
+import { DataFetcher } from './DataFetcher.js'
 
 
 export default class App {
@@ -11,6 +11,7 @@ export default class App {
     this.inputUrl = inputUrl
     this.outputPath = outputPath
     this.#validateParams()
+    this.dataFetcher = new DataFetcher()
   }
 
   #validateParams() {
@@ -30,12 +31,35 @@ export default class App {
   }
 
   run() {
-
     console.log(chalk.blue('Running script...'))
+    this.#fetchData()
+    return this
+  }
 
-    // ora({ text: 'Fetching data...' }).start()
+  async #fetchData() {
+    const loader = ora().start(`Fetching data from ${this.inputUrl}...`)
+    let statusCode, body
+    
+    try {
+      const response = await this.dataFetcher.fetch(this.inputUrl)
+      statusCode = response.statusCode
+      body = response.body
+    } catch (error) {
+      loader.fail()
+      throwErr(new FetchError(`Request to ${this.inputUrl} failed with code ${error.code}!`))
+    }
 
-   
+    try {
+      body = await body.text()
+      loader.succeed(`Data fetched from ${this.inputUrl} (status ${statusCode})!`)
+      console.log(body)
+    } catch (error) {
+      loader.fail()
+      throwErr(new FetchError(`Data fetched from ${this.inputUrl}, but was impossible to read body data!`))
+    }
+  
+    this.originData = body
+
     return this
   }
   
