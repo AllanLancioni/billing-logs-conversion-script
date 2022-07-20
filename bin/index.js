@@ -8,7 +8,10 @@ const { argv } = yargs(hideBin(process.argv))
 
 const inputUrl = argv.i || argv.inputUrl || argv._[0]
 const outputPath = argv.o || argv.outputPath || argv._[1]
+const overwriteFile = !!(argv.v || argv.overwriteFile)
 
-const app = new App(inputUrl, outputPath).run()
+console.log({inputUrl, outputPath, overwriteFile, argv})
+
+const app = new App(inputUrl, outputPath).run(overwriteFile)
 
 // console.log("Convert!")
