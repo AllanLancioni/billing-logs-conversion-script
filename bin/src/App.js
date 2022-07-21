@@ -2,8 +2,8 @@ import { isUri } from 'valid-url'
 import { throwErr, InvalidArgsError, FetchError, FileSystemError } from './errors/index.js'
 import { DataFetcher } from './DataFetcher.js'
 import { Log } from './Log.js'
-import { writeFileSync, existsSync } from 'node:fs'
-import { normalize, resolve } from 'node:path'
+import { writeFileSync, existsSync, mkdirSync } from 'node:fs'
+import { normalize, resolve, dirname } from 'node:path'
 import chalk from 'chalk'
 import ora from 'ora'
 
@@ -94,7 +94,9 @@ export default class App {
   saveConvertedLogFile(outputPath, targetDataset, overwriteFile = false) {
     const loader = ora().start(`Saving log at ${outputPath}...`)
     outputPath = normalize(outputPath)
+
     if (existsSync(outputPath)) {
+      // Overwrite file validation
       if (!overwriteFile) {
         loader.fail()
         throw new FileSystemError(`File already exists at ${outputPath} - you can pass the option --overwriteFile (alias -v)`)
@@ -102,7 +104,10 @@ export default class App {
         loader.warn(`File already exists at ${outputPath} - the old log file will be replaced`)
       }
     }
+
     try {
+      if (!existsSync(dirname(outputPath))) 
+        mkdirSync(dirname(outputPath), { recursive: true })  
       writeFileSync(outputPath, targetDataset)
       loader.succeed(`File saved successfully at ${outputPath}`)
     } catch (error) {
