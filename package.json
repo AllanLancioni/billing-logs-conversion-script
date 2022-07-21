@@ -1,5 +1,5 @@
 {
-  "name": "billing-logs-conversion-script",
+  "name": "cdn2agora",
   "version": "1.0.0",
   "description": "A Node.js script that converts MINHA CDN logs to Agora logs format",
   "main": "./bin/index.js",
