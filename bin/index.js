@@ -12,6 +12,4 @@ const overwriteFile = !!(argv.v || argv.overwriteFile)
 
 console.log({inputUrl, outputPath, overwriteFile, argv})
 
-const app = new App(inputUrl, outputPath).run(overwriteFile)
-
-// console.log("Convert!")
+new App(inputUrl, outputPath).run(overwriteFile)
