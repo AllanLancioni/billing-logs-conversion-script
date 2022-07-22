@@ -1,6 +1,6 @@
 {
   "name": "billing-logs-conversion-script",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Node.js script that converts MINHA CDN logs to Agora logs format",
   "main": "./bin/index.js",
   "bin": {
@@ -8,7 +8,10 @@
   },
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
+  },
+  "jest": { 
+    "roots": ["./tests/"]
   },
   "repository": {
     "type": "git",
@@ -26,5 +29,9 @@
     "undici": "^5.8.0",
     "valid-url": "^1.0.9",
     "yargs": "^17.5.1"
-  }
+  },
+  "devDependencies": {
+    "jest": "^28.1.3"
+  },
+  "keywords": ["cdn2agora", "minhacdn2agora", "cdn-to-agora", "minhacdn-to-agora", "convert", "minhacdn", "agora", "agile-content", "allanlancioni"]
 }
