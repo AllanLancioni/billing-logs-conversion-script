@@ -2,8 +2,8 @@ import { isUri } from 'valid-url'
 import { throwErr, InvalidArgsError, FetchError, FileSystemError } from './errors/index.js'
 import { DataFetcher } from './DataFetcher.js'
 import { Log } from './Log.js'
-import { writeFileSync, existsSync } from 'node:fs'
-import { normalize, resolve } from 'node:path'
+import { writeFileSync, existsSync, mkdirSync } from 'node:fs'
+import { normalize, resolve, dirname } from 'node:path'
 import chalk from 'chalk'
 import ora from 'ora'
 
@@ -65,17 +65,18 @@ export default class App {
 
   /**
    * Main function, start the script
-   * @param  {booelan} overwriteFile - Overwrite file if it already exists, if false it can generate an error 
-   * @returns {App} 
+   * @async
+   * @param  {Object} options - options.overwriteFile will act if log file already exists, if false it will generate an error 
+   * @returns {Promise<App>} 
    */
-  async run(overwriteFile = false) {
+  async run(options = { overwriteFile: false }) {
     try {
       console.log(chalk.blue('Running script...'))
-      this.#originDataset = await this.fetchData(this.inputUrl)
-      const { logs, targetDataset } = this.convertScripts(this.#originDataset)
+      this.#originDataset = await this.fetchData()
+      const { logs, targetDataset } = this.convertScripts()
       this.#logs = logs
       this.#targetDataset = targetDataset
-      this.saveConvertedLogFile(this.outputPath, this.targetDataset, overwriteFile)
+      this.saveConvertedLogFile(this.outputPath, this.targetDataset, options?.overwriteFile)
     } catch (error) {
       throwErr(error)
     }
@@ -94,7 +95,9 @@ export default class App {
   saveConvertedLogFile(outputPath, targetDataset, overwriteFile = false) {
     const loader = ora().start(`Saving log at ${outputPath}...`)
     outputPath = normalize(outputPath)
+
     if (existsSync(outputPath)) {
+      // Overwrite file validation
       if (!overwriteFile) {
         loader.fail()
         throw new FileSystemError(`File already exists at ${outputPath} - you can pass the option --overwriteFile (alias -v)`)
@@ -102,7 +105,10 @@ export default class App {
         loader.warn(`File already exists at ${outputPath} - the old log file will be replaced`)
       }
     }
+
     try {
+      if (!existsSync(dirname(outputPath))) 
+        mkdirSync(dirname(outputPath), { recursive: true })  
       writeFileSync(outputPath, targetDataset)
       loader.succeed(`File saved successfully at ${outputPath}`)
     } catch (error) {
@@ -119,7 +125,7 @@ export default class App {
    * @param {string} dataset - The Data returned from MINHA CDN url
    * @returns {Object} - An object with "logs" (an array of Agora logs) and a "targetDataset" (a string of parsed logs) 
    */
-  convertScripts(dataset) {
+  convertScripts(dataset = this.#originDataset) {
     const loader = ora().start('Parsing data...')
     const logs = Log.createLogsSetByMinhaCDN(dataset)
     const targetDataset = Log.generateLogFileAgoraV1_0(logs)
@@ -133,7 +139,7 @@ export default class App {
    * @param  {string} inputUrl - A string of url that may be fetched
    * @returns {Promise<string>} - A string of bodyparsed fetched data
    */
-  async fetchData(inputUrl) {
+  async fetchData(inputUrl = this.inputUrl) {
     const loader = ora().start(`Fetching data from ${inputUrl}...`)
     let statusCode, body
 
